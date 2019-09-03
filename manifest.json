@@ -1,0 +1,8 @@
+    {
+    "domain": "parents",
+    "name": "Parential supervisor",
+    "documentation": "https://github.com/JiriKursky/parents/",
+    "dependencies": [],
+    "codeowners": ["@JiriKursky"],
+    "requirements": []
+  }
