@@ -1,13 +1,15 @@
 import logging
+import datetime
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
-    CONF_SENSORS
+    CONF_SENSORS, WEEKDAYS
 )
 from inspect import currentframe, getframeinfo
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 
+ATTR_CURRENT_DAY = 'weekday'
 DOMAIN = 'parents'
 ENTITY_ID_FORMAT = 'sensor.{}'
 _LOGGER = logging.getLogger(__name__)
@@ -21,9 +23,9 @@ def my_debug(s):
 
 def kontrolaCasy(hodnota):
     return hodnota
-
+CONF_SCHOOL_ENDS = 'school_end'
 SENSOR_SCHEMA = vol.Schema({
-    vol.Required('school_end'): kontrolaCasy
+    vol.Required(CONF_SCHOOL_ENDS): kontrolaCasy
 })
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -45,6 +47,9 @@ class ParentSensor(Entity):
 
     def __init__(self, hass, object_id,  pars):        
         self.entity_id = ENTITY_ID_FORMAT.format(object_id)
+        self._ends = pars[CONF_SCHOOL_ENDS]
+        self._state = ''
+        self._weekday =  WEEKDAYS[datetime.datetime.today().weekday()]
 
     @property
     def should_poll(self):
@@ -55,10 +60,25 @@ class ParentSensor(Entity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return "yes"
+        return self._state
+
+    def update(self):
+        """Get the latest data and update the state."""
+        self._weekday =  WEEKDAYS[datetime.datetime.today().weekday()]
+        if self._weekday in self._ends:
+            self._state = self._ends[self._weekday]
+        else:
+            self._state = ''
 
     @property
     def available(self):
         """Return True if entity is available."""
         return True
 
+    @property
+    def state_attributes(self):
+        """Return the state attributes."""
+        attrs = {
+            ATTR_CURRENT_DAY: self._weekday,                        
+        }
+        return attrs
