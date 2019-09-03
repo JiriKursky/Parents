@@ -1,1 +1,1 @@
-Parents seupervisor
+Parents supervisor
